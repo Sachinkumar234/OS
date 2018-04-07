@@ -1,6 +1,4 @@
 #include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
 #include<unistd.h>
 #include<pthread.h>
 
@@ -15,18 +13,18 @@ void *writer(void *arg)
 {
 	pthread_mutex_lock(&rw_mutex);
 	
+	printf("\nNo. of reader present in WRITER SECTION is/are %d\n",read_count);
 	printf("Writer writing data...\n");
-	data=data+10;
 	sleep(2);
+	data=data+10;
 	printf("Writed data:%d\n",data);
 	
 	pthread_mutex_unlock(&rw_mutex);
 }
 
-
 void *reader(void *arg1)
 {
-	printf("Reader trying to read data\n");
+	printf("\nReader trying to read data\n");
 	
 	pthread_mutex_lock(&mutex);
 	
@@ -40,9 +38,9 @@ void *reader(void *arg1)
 	pthread_mutex_unlock(&mutex);
 
 	printf("Reader reading data...\n");
-	sleep(2);
+	printf("No. of reader present inside READER SECTION is/are %d\n",read_count);
+	sleep(3);
 	printf("Readed data:%d\n",data);
-
 	pthread_mutex_lock(&mutex);
 	
 	read_count--;
@@ -54,6 +52,7 @@ void *reader(void *arg1)
 	
 	pthread_mutex_unlock(&mutex);
 }
+
 
 int main()
 {
@@ -67,13 +66,14 @@ int main()
 	
 	for(i=0;i<5;i++)
 	{
-		pthread_create(&write[i],NULL,&writer,NULL);
 		pthread_create(&read[i],NULL,&reader,NULL);
+		pthread_create(&write[i],NULL,&writer,NULL);
 	}
+	
 	
 	for(i=0;i<5;i++)
 	{
-		pthread_join(write[i],NULL);
-    		pthread_join(read[i],NULL);
+    	pthread_join(read[i],NULL);
+    	pthread_join(write[i],NULL);
 	}
 }
